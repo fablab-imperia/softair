@@ -1,3 +1,11 @@
+/*
+   Pilotare servo motori a distanza con Arduino
+
+   Autore  : Andrea Lombardo
+   Web     : http://www.lombardoandrea.com
+   Post    : https://wp.me/p27dYH-Q5
+*/
+
 //Inclusione delle librerie
 #include <Bounce2.h>
 #include <nRF24L01.h>
@@ -13,8 +21,8 @@ const unsigned int pinSwEnable = 2;
 const unsigned int pinSwTrigger = 3;
 
 //Chip Select e Chip Enable della Radio
-const unsigned int radioCE = 4;
-const unsigned int radioCS = 5;
+const unsigned int radioCE = 9;
+const unsigned int radioCS = 10;
 
 //Pin per il LED di stato
 const unsigned int ledEnable = 7;
@@ -125,6 +133,9 @@ void loop() {
 
   //Invia dati tramite la radio
   if (pkt.enable) {
+    Serial.print("INVIO ");
+    Serial.println(pkt.speedX);
+    Serial.println(pkt.speedY);
     radio.write(&pkt, sizeof(pkt));
   }
 }
