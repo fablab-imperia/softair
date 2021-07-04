@@ -12,6 +12,9 @@
 #include <RF24_config.h>
 #include <RF24.h>
 
+#define THRESHOLD_PIEZO 800
+#define DEBOUNCE_DELAY 500  
+
 //Costanti e PIN
 
 //Pin pulsante incorporato nel modulo joystick che abilita o disabilita il controllo dei motori
@@ -20,12 +23,20 @@ const unsigned int pinSwEnable = 2;
 //Pin pulsante esterno che controllerà il servo del grilletto
 const unsigned int pinSwTrigger = 3;
 
+//Pin bersaglio che disattiva se colpito
+const unsigned int piezoPin = A0;
+
+//Tempo inattivita' ms   
+const unsigned int inactivityTimeMs = 60000;
+
 //Chip Select e Chip Enable della Radio
 const unsigned int radioCE = 9;
 const unsigned int radioCS = 10;
 
 //Pin per il LED di stato
 const unsigned int ledEnable = 7;
+
+unsigned long lastDebounceTime = 0;
 
 
 //Pin analogici per il joystick
@@ -125,6 +136,7 @@ void setup() {
 
 void loop() {
 
+  int piezoTension = analogRead(piezoPin);
   //gestisci stato dei pulsanti
   handlePulsanti();
 
@@ -138,6 +150,16 @@ void loop() {
     Serial.println(pkt.speedY);
     radio.write(&pkt, sizeof(pkt));
   }
+
+    if(piezoTension > THRESHOLD_PIEZO && (millis() - lastDebounceTime) > DEBOUNCE_DELAY){
+       Serial.println("Bersaglio colpito...");
+       Serial.print("Arresto per ms ");
+       Serial.println(inactivityTimeMs);
+       delay(inactivityTimeMs);
+       lastDebounceTime = millis();
+    }
+    
+   delay(5);
 }
 
 /*
