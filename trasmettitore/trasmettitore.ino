@@ -1,19 +1,9 @@
-/*
-   Pilotare servo motori a distanza con Arduino
-
-   Autore  : Andrea Lombardo
-   Web     : http://www.lombardoandrea.com
-   Post    : https://wp.me/p27dYH-Q5
-*/
-
 //Inclusione delle librerie
 #include <Bounce2.h>
 #include <nRF24L01.h>
 #include <RF24_config.h>
 #include <RF24.h>
 
-#define THRESHOLD_PIEZO 800
-#define DEBOUNCE_DELAY 500  
 
 //Costanti e PIN
 
@@ -22,9 +12,6 @@ const unsigned int pinSwEnable = 2;
 
 //Pin pulsante esterno che controllerà il servo del grilletto
 const unsigned int pinSwTrigger = 3;
-
-//Pin bersaglio che disattiva se colpito
-const unsigned int piezoPin = A0;
 
 //Tempo inattivita' ms   
 const unsigned int inactivityTimeMs = 60000;
@@ -136,7 +123,6 @@ void setup() {
 
 void loop() {
 
-  int piezoTension = analogRead(piezoPin);
   //gestisci stato dei pulsanti
   handlePulsanti();
 
@@ -150,14 +136,6 @@ void loop() {
     Serial.println(pkt.speedY);
     radio.write(&pkt, sizeof(pkt));
   }
-
-    if(piezoTension > THRESHOLD_PIEZO && (millis() - lastDebounceTime) > DEBOUNCE_DELAY){
-       Serial.println("Bersaglio colpito...");
-       Serial.print("Arresto per ms ");
-       Serial.println(inactivityTimeMs);
-       delay(inactivityTimeMs);
-       lastDebounceTime = millis();
-    }
     
    delay(5);
 }
